@@ -1,7 +1,1 @@
-title: Team Kainashi
-
-theme: jekyll-theme-architect
-
-include:
-  - index.md
-  - plaid-2019-pppiii2.md
+auto: true
