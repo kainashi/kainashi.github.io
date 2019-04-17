@@ -81,14 +81,14 @@ This seems like a pretty messy problem to solve analytically, so I turned to con
 
 * **Variables - mutex ownership**: we'll use a two-dimensional grid whose values $g_{m, x}$ denote the owner of mutex $m$ at time $x$. The owner is the thread number if the mutex is held, or -1 if not. The time axis will have some reasonable length, like 80. There are 19 different mutexes. Note that this representation inherently implies that a mutex can only be held by one owner at once.
 * **Variables - seed assignment**: for thread $0\le i<15$ the seed is $s_i$.
-* **Variables - lock assignment**: for thread $0\le i<15$ and lock number $0\le k<5$, the actual lock ID assigned to it is $r_{i, k}$.
-* **Variables - thread actions**: for each thread $i$ and lock number $k$, there is a list of *regions* during which the thread holds $k$. For region #$j$, variable $t_{i,k,j}$ denotes the turn number when the thread obtained the lock, and $e_{i,k,j}$ denotes the turn number when the thread released the lock. Also, we'll use $c_{i,l}$ to denote the time of the $l$-th action (except printing) performed by $i$ (these variables alias $t_{i,k,j}$ and $e_{i,k,j}$ unless it is a sleep).
-* **Constraint - seeds**: $0 <= s_i < 15$ for all $i$, and all $s_i$ are distinct.
-* **Constraint - lock assignment**: $r_{i, k} = R(s_i, k)$, represented as $\bigvee_{a=0}^{14} r_{i,k}=R(a, k) \wedge s_i=a$.
+* **Variables - lock assignment**: for thread $0\le i<15$ and mutex group $0\le k<5$, the actual mutex assigned to it is $r_{i, k}$.
+* **Variables - thread actions**: for each thread $i$ and mutex group $k$, there is a list of *regions* during which the thread holds $k$. For region #$j$, variable $t_{i,k,j}$ denotes the turn number when the thread acquired the mutex, and $e_{i,k,j}$ denotes the turn number when the thread released the mutex. Also, we'll use $c_{i,l}$ to denote the time of the $l$-th action (printing does not count as an action) performed by $i$ (these variables alias $t_{i,k,j}$ and $e_{i,k,j}$ unless the action is to sleep.)
+* **Constraint - seeds**: $0 \le s_i < 15$ for all $i$, and all $s_i$ are distinct.
+* **Constraint - lock assignment**: For each thread $i$ and mutex group $k$, $r_{i, k} = R(s_i, k)$, represented as $\bigvee_{a=0}^{14} r_{i,k}=R(a, k) \wedge s_i=a$.
 * **Constraint - mutex ownership**: for each thread $i$ and mutex $m$, $g_{m, x} = i \iff \bigvee_{j} t_{i,k,j} \le x < e_{i,k,j} \wedge m=r_{i,k}$, where $k$ is the mutex group of $m$. This essentially says that the mutex is owned by a thread if and only if the time is within a lock-unlock region of that thread and that the mutex is assigned to that thread.
 * **Constraint - tight execution**: threads will not sit there doing nothing; whenever it is free it will always perform the next action. There are two parts to this:
   * Unlock and sleep will always happen immediately. If action $c_{i,j}$ is followed by an action $c_{i, j+1}$ which is not a locking operation, then $c_{i,j+1}=c_{i,j}+1$.
-  * Locking only blocks if there is another owner. If action $c_{i,j}$ is followed by an action $c_{i, j+1}$ which is a locking operation on mutex group $k$, then for every turn $x$ such that $c_{i,j} < x < c_{i, j+1}$ and mutex $m$ in the group, $r_{i,k} = m \implies g_{m,x} \ne -1$.
+  * Locking only blocks if there is another owner. If action $c_{i,j}$ is followed by an action $c_{i, j+1}$ which is a locking operation on mutex group $k$, then for every turn $x$ such that $c_{i,j} < x < c_{i, j+1}$ and for every mutex $m$ in the group, $r_{i,k} = m \implies g_{m,x} \ne -1$.
 * **Constraint - ricky must not have cheese**: $r_{6, 1} \ne 6$. This is just some arbitrary constraint imposed in the code; it will abort if this isn't satisfied.
 
 We solve these constraints to get a schedule of execution and corresponding inputs $s_i$. We get a solution within a few seconds, here's an example:
