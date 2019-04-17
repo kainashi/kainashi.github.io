@@ -1,1 +1,9 @@
-auto: true
+title: Team Kainashi
+
+theme: jekyll-theme-architect
+
+markdown: kramdown
+
+include:
+  - index.md
+  - plaid-2019-pppiii2.md
