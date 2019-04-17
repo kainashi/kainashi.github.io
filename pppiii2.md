@@ -48,7 +48,7 @@ Here is the lookup table for the $R$ function. The row is the seed given to a th
 
 Also, here is the sequence of operations performed by each thread, where $+x$ denotes lock, $-x$ denotes unlock, and $\cdots$ denotes sleep.
 
-| Thread | Operation Sequence                                                                                        |
+| #      | Operation Sequence                                                                                        |
 | ------ | --------------------------------------------------------------------------------------------------------- |
 | **0**  | $\cdots , +4 , +3 , -4 , +0 , -3 , -0 , +2 , +1 , -2 , -1 , +0 , +2 , -0 , +0 , -2 , -0$                  |
 | **1**  | $\cdots , +0 , +4 , +2 , +1 , -0 , -1 , +3 , -2 , -3 , +1 , -1 , -4$                                      |
@@ -198,7 +198,7 @@ I didn't give up here, though, because when I debugged many sessions, I noticed 
 
 Debugging solutions from these constraints, I realized that the mutex is actually not fair. So then, it isn't sufficient to say that two threads do not wait on the same mutex at the same time; we need a stronger constraint that when a mutex is released, no two threads can be already waiting on the mutex, because then it's ambiguous which one will get the mutex. In other words, the waiting regions for the same lock never overlap:
 
-* **Constraint - No ambiguity V3**: For two waiting regions $(c_{i, l}, c_{i, l+1})$ and $(c_{j, l}, c_{j, l+1})$ of threads $i< j$ on the same mutex group $k$, $r_{i, k} = r_{j, k} \implies \textrm{if } c_{i,l} = c_{j, l} = 0 \textrm{ then } c_{i, l+1} < c_{j, l+1} \textrm{ else } (c_{i, l} \ne c_{j, l} \wedge (c_{i,l} \ge c_{j, l+1} \vee c_{j,l} \ge c_{i, l+1}))$.
+* **Constraint - No ambiguity V3**: For two waiting regions $(c_{i, l}, c_{i, l+1})$ and $(c_{j, l}, c_{j, l+1})$ of threads $i< j$ on the same mutex group $k$, $r_{i, k} = r_{j, k} \implies \textrm{if } c_{i,l} = c_{j, l} = 0 \textrm{ then } c_{i, l+1} < c_{j, l+1}$ $\textrm{ else } (c_{i, l} \ne c_{j, l} \wedge (c_{i,l} \ge c_{j, l+1} \vee c_{j,l} \ge c_{i, l+1}))$.
 
 This gives solutions such as `3 6 12 4 14 15 10 1 9 7 13 2 11 8 5` that will most likely succeed in printing a flag, but the flag is garbage.
 
