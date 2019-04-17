@@ -8,6 +8,8 @@ This was a particularly interesting challenge that I spent a lot of time in, wit
 
 **If you just want to look at the correct solution, skip to Attempt 3.**
 
+Also, I'll reduce clutter in the text part by putting all the code at the end.
+
 ## Reversing
 
 I'll skip most of the details for the reversing part. It's not a particularly difficult binary to reverse, and the difficult part of the task isn't the reversing anyway.
@@ -26,27 +28,44 @@ Our goal is to find an input so that all threads will finish, and then it will u
 Here is the lookup table for the $R$ function. The row is the seed given to a thread, and the column is the value of $k$. Note that for different $k$, the values are guaranteed to be different. We'll therefore refer to each column as a "mutex group". Notice also that some mutex groups have fewer mutexes, but there are 19 in total.
 
 
-|     | 0   | 1   | 2   | 3   | 4   |
-| --- | --- | --- | --- | --- | --- |
-| 0   | 0   | 5   | 13  | 15  | 20  |
-| 1   | 0   | 5   | 10  | 15  | 20  |
-| 2   | 1   | 5   | 10  | 15  | 20  |
-| 3   | 1   | 5   | 11  | 15  | 20  |
-| 4   | 1   | 6   | 11  | 15  | 21  |
-| 5   | 2   | 6   | 11  | 15  | 21  |
-| 6   | 2   | 6   | 11  | 16  | 21  |
-| 7   | 2   | 6   | 12  | 16  | 21  |
-| 8   | 3   | 6   | 12  | 16  | 22  |
-| 9   | 3   | 7   | 12  | 16  | 22  |
-| 10  | 3   | 7   | 12  | 16  | 23  |
-| 11  | 4   | 7   | 12  | 16  | 23  |
-| 12  | 4   | 7   | 13  | 16  | 24  |
-| 13  | 4   | 7   | 13  | 15  | 24  |
-| 14  | 0   | 5   | 13  | 15  | 24  |
+|        | 0   | 1   | 2   | 3   | 4   |
+| ------ | --- | --- | --- | --- | --- |
+| **0**  | 0   | 5   | 13  | 15  | 20  |
+| **1**  | 0   | 5   | 10  | 15  | 20  |
+| **2**  | 1   | 5   | 10  | 15  | 20  |
+| **3**  | 1   | 5   | 11  | 15  | 20  |
+| **4**  | 1   | 6   | 11  | 15  | 21  |
+| **5**  | 2   | 6   | 11  | 15  | 21  |
+| **6**  | 2   | 6   | 11  | 16  | 21  |
+| **7**  | 2   | 6   | 12  | 16  | 21  |
+| **8**  | 3   | 6   | 12  | 16  | 22  |
+| **9**  | 3   | 7   | 12  | 16  | 22  |
+| **10** | 3   | 7   | 12  | 16  | 23  |
+| **11** | 4   | 7   | 12  | 16  | 23  |
+| **12** | 4   | 7   | 13  | 16  | 24  |
+| **13** | 4   | 7   | 13  | 15  | 24  |
+| **14** | 0   | 5   | 13  | 15  | 24  |
 
-Also, here is the sequence of operations performed by each thread, where "+x" denotes lock, "-x$ denotes unlock, and "/" denotes sleep.
+Also, here is the sequence of operations performed by each thread, where $+x$ denotes lock, $-x$ denotes unlock, and $\cdots$ denotes sleep.
 
-TODO.
+| Thread | Operation Sequence                                                                                        |
+| ------ | --------------------------------------------------------------------------------------------------------- |
+| **0**  | $\cdots , +4 , +3 , -4 , +0 , -3 , -0 , +2 , +1 , -2 , -1 , +0 , +2 , -0 , +0 , -2 , -0$                  |
+| **1**  | $\cdots , +0 , +4 , +2 , +1 , -0 , -1 , +3 , -2 , -3 , +1 , -1 , -4$                                      |
+| **2**  | $\cdots , +2 , +1 , -2 , +2 , -2 , +0 , -0 , +4 , -4 , +3 , -3 , -1 , +4 , -4$                            |
+| **3**  | $\cdots , +4 , +3 , -4 , +0 , -3 , -0 , +2 , +1 , -2 , +4 , -1 , -4$                                      |
+| **4**  | $\cdots , +4 , -4 , +0 , -0 , +1 , +2 , +3 , -1 , -3 , -2 , +2 , +3 , -3 , -2 , +2 , -2$                  |
+| **5**  | $\cdots , +4 , +3 , -4 , +0 , -0 , +2 , -3 , +1 , -1 , -2 , +0 , +2 , -0 , -2$                            |
+| **6**  | $\cdots , +0 , +2 , -0 , +1 , -1 , -2 , +3 , +0 , -0 , +4 , -3 , -4$                                      |
+| **7**  | $\cdots , +4 , -4 , +0 , -0 , +1 , +3 , +2 , -3 , -2 , -1 , +0 , -0$                                      |
+| **8**  | $+0 , +2 , -2 , -0 , +0 , -0 , +4 , -4 , +2 , +1 , -1 , -2 , +0 , -0 , +3 , +4 , -4 , -3 , +0 , -0$       |
+| **9**  | $\cdots , +3 , +1 , -1 , +4 , -4 , -3 , +0 , +2 , -0 , +1 , -2 , -1$                                      |
+| **10** | $\cdots , +1 , +3 , +2 , -2 , -1 , +0 , -3 , -0 , +4 , -4$                                                |
+| **11** | $\cdots , +4 , +1 , \cdots , +2 , -1 , -4 , +1 , \cdots , -1 , -2 , +0 , +1 , \cdots , +2 , -0 , -1 , -2$ |
+| **12** | $\cdots , +0 , -0 , +0 , +1 , -0 , +2 , +3 , -2 , -3 , -1 , +0 , -0 , +1 , +3 , -1 , -3 , +4 , -4$        |
+| **13** | $\cdots , +0 , +2 , -0 , +1 , -1 , -2 , +0 , +4 , -0 , -4$                                                |
+| **14** | $+3 , +1 , +2 , -3 , -2 , -1 , +1 , +2 , -2 , +2 , -2 , -1$                                               |
+
 
 
 ## Attempt 1: Turn-Based Deadlock-Free Constraint Solving
@@ -172,7 +191,7 @@ Note that, the interval between $c_{i, l}$ (exclusive) and $c_{i, l+1}$ (exclusi
 
 Sadly, with this additional constraint, we get no solutions. In fact, we can eyeball that conclusion by noticing that in the second turn, there are 6 threads locking on mutex group $k=5$, but there are only 5 mutexes in that group. A race will always happen.
 
-I didn't give up here, though, because when I debugged many sessions, I noticed that during the first round, the mutexes always get acquired by the thread with the lower therad number. Perhaps that's because these threads get created in that order and the kernel has some predictable scheduling going on. Also, with even further debugging, I conjectured that the mutexes were fair, i.e. if threads $A$ and $B$ lock the mutex in that order, then they will get it in that order. Just to be clear to the readers, both of these end up being *wrong*, but these were what I had assumed at the time. So the new constraints are:
+I didn't give up here, though, because when I debugged many sessions, I noticed that during the first round, the mutexes always get acquired by the thread with the lower thread number. Perhaps that's because these threads get created in that order and the kernel has some predictable scheduling going on. Also, with even further debugging, I conjectured that the mutexes were fair, i.e. if threads $A$ and $B$ lock the mutex in that order, then they will get it in that order. Just to be clear to the readers, both of these end up being *wrong*, but these were what I had assumed at the time. So the new constraints are:
 
 * **Constraint - No ambiguity V2**: For two waiting regions $(c_{i, l}, c_{i, l+1})$ and $(c_{j, l}, c_{j, l+1})$ of threads $i< j$ on the same mutex group $k$, $r_{i, k} = r_{j, k} \implies \textrm{if } c_{i,l} = c_{j, l} = 0 \textrm{ then } c_{i, l+1} < c_{j, l+1} \textrm{ else }  c_{i, l} \ne c_{j, l})$.
 * **Constraint - Mutex fairness**: For two waiting regions $(c_{i, l}, c_{i, l+1})$ and $(c_{j, l}, c_{j, l+1})$ of threads $i\ne j$ on the same mutex group $k$, $r_{i,k}=r_{j,k} \implies c_{i,l}<c_{j_l} \implies c_{i,l+1}<c_{j,l+1}$. (If they start waiting in that order, they acquire in that order.)
@@ -281,12 +300,13 @@ On the input I obtained earlier, `14 7 9 12 8 11 10 2 4 6 15 1 3 5 13`, this cod
 
 Now that we can find deadlocks, it's time to find an assignment of menus that avoids deadlocks. I did struggle on this bit, but in the end I realized it isn't all that difficult. If we look at the menus again, they have pretty similar entries - here are the top 4 rows again:
 
-|     | 0   | 1   | 2   | 3   | 4   |
-| --- | --- | --- | --- | --- | --- |
-| 0   | 0   | 5   | 13  | 15  | 20  |
-| 1   | 0   | 5   | 10  | 15  | 20  |
-| 2   | 1   | 5   | 10  | 15  | 20  |
-| 3   | 1   | 5   | 11  | 15  | 20  |
+|       | 0   | 1   | 2   | 3   | 4   |
+| ----- | --- | --- | --- | --- | --- |
+| **0** | 0   | 5   | 13  | 15  | 20  |
+| **1** | 0   | 5   | 10  | 15  | 20  |
+| **2** | 1   | 5   | 10  | 15  | 20  |
+| **3** | 1   | 5   | 11  | 15  | 20  |
+| **4** | 1   | 6   | 11  | 15  | 21  |
 
 If we try to assign diners to menus (as opposed to menus to diners), then it's likely there aren't that many choices among the first four menus, because they share a lot of mutexes (for groups 1, 3, 4, in particular). We can check for deadlocks even when we have just 2 threads, because if we can get a deadlock with just a few threads, we can get the same deadlock with more threads. (This seems obvious, but it is important, because earlier when we were looking at the turn-based version, a deadlock with fewer threads does *not* necessarily imply a deadlock with more threads; the other threads could've delayed one of the deadlocking threads to avoid the deadlock.)
 
@@ -309,3 +329,732 @@ After submitting the flag we saw that the binary was patched to fix the dinner c
 However, the challenge was a great exercise for using z3 and a good refresher on algorithms.  I also found the collaboration with HackingForSoju helpful, particularly in finding new alternative interpretations of the challenge.
 
 I still haven't proven my claim on the deadlock-free condition, though. If anyone knows of a proof or has relevant literature to share, please let me know (hpmv on freenode IRC).
+
+## Code
+
+I only wrote some comments, moved blocks of code around, and fixed some completely broken code after the CTF, so most of the code is still a bit messy, but here it is, the script that contains everything.
+
+```python
+import random
+import itertools
+import sys
+from z3 import *
+
+total_time = 80
+total_threads = 15
+total_locks = 19
+
+# What each thread does. positive = lock (off by 1),
+# negative = unlock (off by 1), 0 = sleep.
+schedules = [
+    [0, 5, 4, -5, 1, -4, -1, 3, 2, -3, -2, 1, 3, -1, 1, -3, -1],
+    [0, 1, 5, 3, 2, -1, -2, 4, -3, -4, 2, -2, -5],
+    [0, 3, 2, -3, 3, -3, 1, -1, 5, -5, 4, -4, -2, 5, -5],
+    [0, 5, 4, -5, 1, -4, -1, 3, 2, -3, 5, -2, -5],
+    [0, 5, -5, 1, -1, 2, 3, 4, -2, -4, -3, 3, 4, -4, -3, 3, -3],
+    [0, 5, 4, -5, 1, -1, 3, -4, 2, -2, -3, 1, 3, -1, -3],
+    [0, 1, 3, -1, 2, -2, -3, 4, 1, -1, 5, -4, -5],
+    [0, 5, -5, 1, -1, 2, 4, 3, -4, -3, -2, 1, -1],
+    [1, 3, -3, -1, 1, -1, 5, -5, 3, 2, -2, -3, 1, -1, 4, 5, -5, -4, 1, -1],
+    [0, 4, 2, -2, 5, -5, -4, 1, 3, -1, 2, -3, -2],
+    [0, 2, 4, 3, -3, -2, 1, -4, -1, 5, -5],
+    [0, 5, 2, 0, 3, -2, -5, 2, 0, -2, -3, 1, 2, 0, 3, -1, -2, -3],
+    [0, 1, -1, 1, 2, -1, 3, 4, -3, -4, -2, 1, -1, 2, 4, -2, -4, 5, -5],
+    [0, 1, 3, -1, 2, -2, -3, 1, 5, -1, -5],
+    [4, 2, 3, -4, -3, -2, 2, 3, -3, 3, -3, -2],
+]
+
+# The following is used for implementing the R function.
+mealr = [0, 3, 6, 9, 12, 1, 6, 11, -1, -1, 1, 4,
+         8, 14, -1, 2, 8, -1, -1, -1, 1, 5, 9, 10, 13]
+
+
+def rbox(a, b):
+    x = 2*(a-b+15) % 30
+    y = (2*(b-a+15)+1) % 30
+    return min(x, y)
+
+
+condensed_l = [0, 1, 2, 3, 4, 5, 6, 7, 10,
+               11, 12, 13, 15, 16, 20, 21, 22, 23, 24]
+
+possible_locks = [[0, 1, 2, 3, 4], [5, 6, 7], [
+    8, 9, 10, 11], [12, 13], [14, 15, 16, 17, 18]]
+
+# The R function.
+
+
+def pick_meal(pr, t):
+    best = t*5
+    for i in range(t*5 + 1, t*5 + 5):
+        if mealr[i] >= 0:
+            if rbox(pr, mealr[i]) < rbox(pr, mealr[best]):
+                best = i
+    return best
+
+
+# The lookup table for precomputed R function outputs.
+pick_table = [[condensed_l.index(pick_meal(pr, t))
+               for t in range(5)] for pr in range(15)]
+
+'''
+pick_table:
+      0  1  2  3  4
+  0   0  5 13 15 20
+  1   0  5 10 15 20
+  2   1  5 10 15 20
+  3   1  5 11 15 20
+  4   1  6 11 15 21
+  5   2  6 11 15 21
+  6   2  6 11 16 21
+  7   2  6 12 16 21
+  8   3  6 12 16 22
+  9   3  7 12 16 22
+ 10   3  7 12 16 23
+ 11   4  7 12 16 23
+ 12   4  7 13 16 24
+ 13   4  7 13 15 24
+ 14   0  5 13 15 24
+'''
+
+###############################################################################
+######## ATTEMPT 1. z3 solver for turn-based problem ##########################
+###############################################################################
+
+
+def pick_table_emu(s, lock_index, r):
+    """Writes a constraint that says R(s, lock_index) = r."""
+    res = None
+    for i in range(total_threads):
+        cond = And(s == i, r == pick_table[i][lock_index])
+        if res is None:
+            res = cond
+        else:
+            res = Or(res, cond)
+    return res
+
+
+def solve_with_z3():
+    """Attempt 1, z3 solver."""
+    G = [[Int('G(%s,%s)' % (L, X)) for X in range(total_time)]
+         for L in range(total_locks)]
+
+    solver = Solver()
+
+    for L in range(total_locks):
+        for X in range(total_time):
+            solver.add(G[L][X] >= -1, G[L][X] < total_threads)
+
+    S = [Int('S(%s)' % T) for T in range(total_threads)]
+
+    for v in S:
+        solver.add(v >= 0, v < total_threads)
+
+    solver.add(Distinct(S))
+
+    all_groups = []
+    all_waitings = []
+    all_actual_l = []
+
+    for T in range(total_threads):
+        schedule = schedules[T]
+        groups = [[] for i in range(5)]
+        all_groups.append(groups)
+        waitings = [[] for i in range(5)]
+        all_waitings.append(waitings)
+        pending = [None for i in range(5)]
+        prev_var = -1
+        sleeps = 0
+        for event in schedule:
+            if event == 0:
+                event_var = Int('Sleep(%s)#%s' % (T, sleeps))
+                sleeps += 1
+                solver.add(event_var >= 0, event_var < total_time)
+                solver.add(event_var == prev_var + 1)
+                prev_var = event_var
+                continue
+            lock = abs(event) - 1
+            is_lock = event > 0
+            event_var = Int('%s(%s, %s)#%s' % (
+                'Lock' if is_lock else 'Unlock', T, lock, len(groups[lock])))
+            solver.add(event_var >= 0, event_var < total_time)
+            if not is_lock:
+                solver.add(event_var == prev_var + 1)
+            solver.add(event_var > prev_var)
+            if is_lock:
+                assert pending[lock] is None, (T, lock)
+                pending[lock] = event_var
+                waitings[lock].append((prev_var + 1, event_var))
+            else:
+                assert pending[lock] is not None, (T, lock)
+                groups[lock].append((pending[lock], event_var))
+                pending[lock] = None
+            prev_var = event_var
+        actual_ls = []
+        all_actual_l.append(actual_ls)
+        for lock in range(5):
+            assert pending[lock] is None, (T, lock)
+            ActualL = Int('ActualLock(%s,%s)' % (T, lock))
+            actual_ls.append(ActualL)
+            solver.add(pick_table_emu(S[T], lock, ActualL))
+            for X in range(total_time):
+                is_in_range = False
+                for (lock_time, unlock_time) in groups[lock]:
+                    in_range = And(X >= lock_time, X < unlock_time)
+                    if is_in_range is False:
+                        is_in_range = in_range
+                    else:
+                        is_in_range = Or(is_in_range, in_range)
+                for L in possible_locks[lock]:
+                    cond = (G[L][X] == T) == And(is_in_range, ActualL == L)
+                    solver.add(cond)
+
+                is_waiting = False
+                for (prev, lock_time) in waitings[lock]:
+                    waiting = And(X >= prev, X < lock_time)
+                    if is_waiting is False:
+                        is_waiting = waiting
+                    else:
+                        is_waiting = Or(is_waiting, waiting)
+                for L in possible_locks[lock]:
+                    cond = Or(Not(And(ActualL == L, is_waiting)),
+                              G[L][X] != -1)
+                    solver.add(cond)
+
+    solver.add(Or(S[6] < 4, S[6] > 8))
+
+    if False:
+        difficulty = 0
+        for t_a in range(total_threads):
+            for t_b in range(t_a):
+                for L in range(5):
+                    for l_a in range(len(all_groups[t_a][L])):
+                        for l_b in range(len(all_groups[t_b][L])):
+                            (wait_a, _) = all_waitings[t_a][L][l_a]
+                            (wait_b, _) = all_waitings[t_b][L][l_b]
+                            actual_lock_a = all_actual_l[t_a][L]
+                            actual_lock_b = all_actual_l[t_b][L]
+                            (lock_a, _) = all_groups[t_a][L][l_a]
+                            (lock_b, _) = all_groups[t_b][L][l_b]
+                            prio_a, prio_b = t_a, t_b
+                            # a bunch of mess when trying different things here.
+                            #
+                            # cond = If(actual_lock_a == actual_lock_b,
+                            #           If(And(And(wait_a == wait_b), wait_b < 2),
+                            #              lock_a > lock_b if prio_a > prio_b else lock_b > lock_a,
+                            #              # True,
+                            #              And(wait_a != wait_b,
+                            #                  If(wait_a < wait_b, lock_a < lock_b, lock_b < lock_a))
+                            #              ), True)
+                            # cond = If(actual_lock_a == actual_lock_b,
+                            #           And(wait_a != wait_b,
+                            #               If(wait_a < wait_b, lock_a < lock_b, lock_b < lock_a)), True)
+                            diff = If(And(actual_lock_a == actual_lock_b,
+                                          wait_a == wait_b), 1, 0)
+                            difficulty = diff + difficulty
+                            # print cond
+        solver.add(difficulty < 10)
+
+    print 'Solving...'
+    while solver.check() == sat:
+        model = solver.model()
+
+        for j in range(total_locks):
+            print '%3s' % condensed_l[j],
+        print
+
+        for i in range(total_time):
+            for j in range(total_locks):
+                if model[G[j][i]] == -1:
+                    print '  .',
+                else:
+                    print '%3s' % model[G[j][i]],
+            print
+
+        for i in range(total_threads):
+            print int(str(model[S[i]])) + 1,
+        print
+        print
+        sol = [int(str(model[S[i]])) for i in range(total_threads)]
+
+        # blacklist that solution to find a new one next.
+        solver.add(Not(And(*[S[i] == sol[i] for i in range(total_threads)])))
+
+
+if len(sys.argv) == 2 and sys.argv[1] == '1':
+    solve_with_z3()
+    quit()
+
+
+###############################################################################
+######## ATTEMPT 2. Genetic algorithm to find deadlock-free inputs ############
+###############################################################################
+
+def choices_helper(variations, i, prefix):
+    """Given [(1, [100, 101]), (2, [200, 201])], returns combinations:
+    [[(1, 100), (2, 200)], [(1, 101), (2, 200)], ...]"""
+    if i >= len(variations):
+        yield prefix
+        return
+    (index, possibles) = variations[i]
+    for item in possibles:
+        for res in choices_helper(variations, i + 1, prefix + [(index, item)]):
+            yield res
+
+
+def choices(variations):
+    return choices_helper(variations, 0, [])
+
+
+def remove_waiter(q, waiter):
+    return [x for x in q if x != waiter]
+
+
+def sim_end_of_turn(seeds, pos, locks):
+    # Simulates the end of turn semantics. For each lock without owner, we'll
+    # try all possibilities for promoting a waiter to the owner.
+    #
+    # pos: for each thread, (index of action the thread will take next,
+    #                        whether thread is blocked on lock)
+    # locks: for each lock, (owner, list of waiters)
+    # returns a generator of states of (pos, locks)
+    variations = []
+
+    for i in range(total_locks):
+        (owner, waiters) = locks[i]
+        if owner is None and len(waiters) > 0:
+            variations.append((i, waiters))
+    all_variations = list(choices(variations))
+    random.shuffle(all_variations)
+    for variation in all_variations:
+        pos_copy = pos[:]
+        locks_copy = locks[:]
+        for (lock_index, waiter) in variation:
+            locks_copy[lock_index] = (waiter, remove_waiter(
+                locks_copy[lock_index][1], waiter))
+            (task_index, blocked) = pos_copy[waiter]
+            pos_copy[waiter] = (task_index, False)
+        yield (pos_copy, locks_copy)
+
+
+def simulate_during_turn(seeds, pos, locks):
+    """Simulates all threads' actions during a turn."""
+    pos_copy = pos[:]
+    new_waiters = [[] for l in range(total_locks)]
+    locks_copy = locks[:]
+    for (thread, (action, blocked)) in enumerate(pos):
+        if not blocked and action < len(schedules[thread]):
+            event = schedules[thread][action]
+            if event == 0:
+                pos_copy[thread] = (action + 1, False)
+            else:
+                lock_k = abs(event) - 1
+                actual_lock = pick_table[seeds[thread]][lock_k]
+                is_lock = event > 0
+                if is_lock:
+                    new_waiters[actual_lock].append(thread)
+                    pos_copy[thread] = (action + 1, True)
+                else:
+                    assert locks[actual_lock][0] == thread, (
+                        thread, actual_lock, locks[actual_lock])
+                    locks_copy[actual_lock] = (
+                        None, locks_copy[actual_lock][1])
+                    pos_copy[thread] = (action + 1, False)
+
+    for (lock_index, new) in enumerate(new_waiters):
+        if new:
+            (owner, waiters) = locks_copy[lock_index]
+            locks_copy[lock_index] = (owner, waiters + new)
+    return (pos_copy, locks_copy)
+
+
+def simulate_one_turn(seeds, pos, locks):
+    """Simulates one turn completely, returns generator of (A, H)."""
+    (pos, locks) = simulate_during_turn(seeds, pos, locks)
+    return sim_end_of_turn(seeds, pos, locks)
+
+
+def is_complete(pos):
+    return all(index == len(schedules[i]) and not blocked
+               for (i, (index, blocked)) in enumerate(pos))
+
+
+def is_deadlock(pos):
+    return not any(index != len(schedules[i]) and not blocked
+                   for (i, (index, blocked)) in enumerate(pos))
+
+
+class DeadlockException(Exception):
+    """Actually, this is used to just break out of the search."""
+    pass
+
+
+def simulate_from(seeds, pos, locks, results, limit, kill_if_dead, report_back):
+    """DFS from an initial state to simulate all possible outcomes onward.
+
+    Stops if limit number of outcomes are reached.
+
+    If report_back is true, will return the immediate children instead of 
+    recursively visiting them.
+
+    If kill_if_dead, will return immediately when finding any deadlock."""
+    if is_complete(pos):
+        results[0] += 1
+        if results[0] + results[1] > limit:
+            raise DeadlockException()
+        return []
+    if is_deadlock(pos):
+        # print 'Deadlock'
+        results[1] += 1
+        if kill_if_dead or results[0] + results[1] > limit:
+            raise DeadlockException()
+        return []
+    next_states = []
+    for (new_pos, new_locks) in simulate_one_turn(seeds, pos, locks):
+        if report_back:
+            next_states.append((new_pos, new_locks))
+        else:
+            simulate_from(seeds, new_pos, new_locks, results,
+                          limit, kill_if_dead, False)
+    return next_states
+
+
+def simulate(seeds, limitless=False):
+    """Simulates with a poor-man's Monte Carlo Tree Search.
+
+    Basically, we first BFS to expand to 25 nodes, and then DFS from each of 
+    these nodes with a max-nodes limit. Also, every time we expand a node of
+    the search tree, we visit its children randomly. So this gives a pretty
+    good approximation to a real Monte Carlo search.
+
+    limitless is a hack that will make the search exhaustively check all
+    nodes, essentially disabling sampling."""
+    good = 0
+    bad = 0
+    complete = True
+    pool = [([(0, False)] * total_threads,
+             [(None, []) for i in range(total_locks)])]
+    while len(pool) > 0 and len(pool) < 25:
+        new_pool = []
+        for (pos, locks) in pool:
+            results = [0, 0]
+            new_pool.extend(simulate_from(
+                seeds, pos, locks, results, 1000000, False, True))
+            good += results[0]
+            bad += results[1]
+        pool = new_pool
+    for (pos, locks) in pool:
+        results = [0, 0]
+        try:
+            simulate_from(seeds, pos, locks, results,
+                          10000000 if limitless else 25, limitless, False)
+        except DeadlockException as e:
+            complete = False
+        good += results[0]
+        bad += results[1]
+    return (good, bad, complete)
+
+
+# print simulate([1, 13, 3, 9, 11, 10, 6, 7, 5, 4, 0, 14, 12, 2, 8], limitless=True)
+
+#simulate([2, 13, 1, 4, 6, 10, 9, 3, 8, 12, 5, 11, 0, 14, 7])
+#simulate([2, 5, 11, 3, 13, 14, 9, 0, 8, 6, 12, 1, 10, 7, 4])
+#simulate([7, 8, 13, 6, 11, 5, 0, 14, 2, 12, 4, 1, 10, 3, 9])
+
+#master_pool = [[7, 8, 13, 6, 11, 5, 0, 14, 2, 12, 4, 1, 10, 3, 9]]
+#master_pool = [[7, 6, 13, 8, 11, 5, 0, 14, 2, 12, 4, 1, 10, 3, 9]]
+#master_pool = [[2, 5, 11, 3, 13, 14, 9, 0, 8, 6, 12, 1, 10, 7, 4]]
+master_pool = [[1, 2, 3, 4, 5, 6, 0, 7, 8, 9, 10, 11, 12, 13, 14]]
+#master_pool = [[7, 6, 12, 14, 9, 5, 0, 13, 2, 8, 1, 3, 10, 4, 11]]
+#master_pool = [[1, 13, 3, 9, 11, 10, 2, 7, 6, 4, 0, 14, 12, 5, 8]]
+#master_pool = [[13, 6, 8, 11, 7, 10, 9, 1, 0, 5, 14, 3, 2, 4, 12]]
+new_pool = []
+
+if len(sys.argv) == 2 and sys.argv[1] == '2':
+    while True:
+        for master in master_pool:
+            for (i, j) in itertools.combinations(range(15), 2):
+                sol = master[:]
+                (sol[i], sol[j]) = (sol[j], sol[i])
+                if sol[6] >= 4 and sol[6] <= 8:
+                    continue
+                (good, bad, complete) = simulate(sol)
+                new_pool.append(
+                    (tuple(sol), good*1.0/(good+bad), good, bad, complete))
+            for i in [0]:
+                sol = master[:]
+                (good, bad, complete) = simulate(sol)
+                new_pool.append(
+                    (tuple(sol), good*1.0/(good+bad), good, bad, complete))
+            for _ in range(50):
+                while True:
+                    sol = master[:]
+                    i = random.randint(0, 14)
+                    j = random.randint(0, 14)
+                    k = random.randint(0, 14)
+                    if i == j or j == k or k == i:
+                        continue
+                    if sol[6] >= 4 and sol[6] <= 8:
+                        continue
+                    (sol[i], sol[j], sol[k]) = (sol[j], sol[k], sol[i])
+                    (good, bad, complete) = simulate(sol)
+                    new_pool.append(
+                        (tuple(sol), good*1.0/(good+bad), good, bad, complete))
+                    break
+            for _ in range(50):
+                while True:
+                    sol = master[:]
+                    i = random.randint(0, 14)
+                    j = random.randint(0, 14)
+                    k = random.randint(0, 14)
+                    l = random.randint(0, 14)
+                    if len(set([i, j, k, l])) < 4:
+                        continue
+                    if sol[6] >= 4 and sol[6] <= 8:
+                        continue
+                    (sol[i], sol[j], sol[k], sol[l]) = (
+                        sol[j], sol[k], sol[l], sol[i])
+                    (good, bad, complete) = simulate(sol)
+                    new_pool.append(
+                        (tuple(sol), good*1.0/(good+bad), good, bad, complete))
+                    break
+            for _ in range(50):
+                sol = range(15)
+                random.shuffle(sol)
+                if sol[6] >= 4 and sol[6] <= 8:
+                    continue
+                (sol[i], sol[j], sol[k]) = (sol[j], sol[k], sol[i])
+                (good, bad, complete) = simulate(sol)
+                new_pool.append(
+                    (tuple(sol), good*1.0/(good+bad), good, bad, complete))
+
+        new_pool = sorted(set(new_pool), key=lambda x: (-x[1], x[2]))[:10]
+
+        print '====================================='
+        for (sol, ratio, good, bad, complete) in new_pool:
+            print 'Good: %s, Bad: %s, Complete: %s, Ratio: %s, Sol: %s' % (
+                good, bad, complete, good * 1.0 / (good + bad), sol)
+        master_pool = [list(item[0]) for item in new_pool]
+    quit()
+
+
+###############################################################################
+######## ATTEMPT 3. Solving for true deadlock-free inputs #####################
+###############################################################################
+
+class Lock:
+    def __init__(self, id):
+        self.id = id
+
+    def __str__(self):
+        return '+' + str(self.id)
+
+    __repr__ = __str__
+
+
+class Unlock:
+    def __init__(self, id):
+        self.id = id
+
+    def __str__(self):
+        return '-' + str(self.id)
+
+    __repr__ = __str__
+
+
+class FoundDeadlockException(Exception):
+    pass
+
+
+def find_deadlock(seeds):
+    """Initial version of deadlock finding code which takes input seeds and
+    prints a deadlock situation if we find one."""
+    actual_schedules = []
+    lock_regions = [[] for i in range(total_locks)]
+    held_locks_at = []
+
+    for (thread, schedule) in enumerate(schedules):
+        seed = seeds[thread]
+        actual_schedule = []
+        for action in schedule:
+            if action == 0:
+                continue
+            lock_index = abs(action) - 1
+            actual_lock = pick_table[seed][lock_index]
+            is_lock = action > 0
+            if is_lock:
+                actual_schedule.append(Lock(actual_lock))
+            else:
+                actual_schedule.append(Unlock(actual_lock))
+        actual_schedules.append(actual_schedule)
+
+    for (thread, schedule) in enumerate(actual_schedules):
+        lock_time = [-1] * total_locks
+        locks_held = set()
+        held_locks_at_one = []
+        for (index, action) in enumerate(schedule):
+            held_locks_at_one.append(set(locks_held))
+            if isinstance(action, Lock):
+                assert lock_time[action.id] == -1
+                lock_time[action.id] = index
+                locks_held.add(action.id)
+            else:
+                assert lock_time[action.id] != -1
+                if index > lock_time[action.id] + 1:
+                    lock_regions[action.id].append(
+                        (thread, lock_time[action.id] + 1, index))
+                lock_time[action.id] = -1
+                locks_held.remove(action.id)
+        held_locks_at.append(held_locks_at_one)
+
+    for (i, s) in enumerate(actual_schedules):
+        print i, s
+    thread_pos = [-1] * total_threads
+    locks_held = set()
+    found = set()
+
+    def helper(lock, indent=0):
+        for (thread, start, end) in lock_regions[lock]:
+            if thread_pos[thread] != -1:
+                if thread_pos[thread] >= start and thread_pos[thread] < end:
+                    print 'Found deadlock'
+                    found.add(tuple(thread_pos))
+                    raise FoundDeadlockException()
+                continue
+            for i in range(start, end):
+                action = actual_schedules[thread][i]
+                if not isinstance(action, Lock):
+                    continue
+                held = held_locks_at[thread][i]
+                if len(locks_held.intersection(held)) == 0:
+                    # print '  '*(indent + 1) + "Position", i
+                    locks_held.update(held)
+                    thread_pos[thread] = i
+                    helper(action.id, indent + 2)
+                    thread_pos[thread] = -1
+                    for h in held:
+                        locks_held.remove(h)
+        # print '  '*indent + 'Done trying lock', lock
+
+    try:
+        for lock_id in range(total_locks):
+            helper(lock_id)
+    except FoundDeadlockException as e:
+        print thread_pos, locks_held
+
+
+#find_deadlock([11, 13, 3, 7, 4, 10, 9, 1, 0, 8, 2, 12, 5, 14, 6])
+# find_deadlock(range(15))
+# quit()
+
+
+def is_deadlock_free(actual_schedules):
+    """Given a list of schedules of Lock and Unlock actions,
+    determine if it's impossible to get into a deadlock situation.
+
+    Returns False if we found a deadlock."""
+    lock_regions = [[] for i in range(total_locks)]
+    held_locks_at = []
+    num_threads = len(actual_schedules)
+
+    for (thread, schedule) in enumerate(actual_schedules):
+        lock_time = [-1] * total_locks
+        locks_held = set()
+        held_locks_at_one = []
+        for (index, action) in enumerate(schedule):
+            held_locks_at_one.append(set(locks_held))
+            if isinstance(action, Lock):
+                assert lock_time[action.id] == -1
+                lock_time[action.id] = index
+                locks_held.add(action.id)
+            else:
+                assert lock_time[action.id] != -1
+                if index > lock_time[action.id] + 1:
+                    lock_regions[action.id].append(
+                        (thread, lock_time[action.id] + 1, index))
+                lock_time[action.id] = -1
+                locks_held.remove(action.id)
+        held_locks_at.append(held_locks_at_one)
+
+    thread_pos = [-1] * num_threads
+    locks_held = set()
+    found = set()
+
+    def helper(lock, indent=0):
+        for (thread, start, end) in lock_regions[lock]:
+            if thread_pos[thread] != -1:
+                if thread_pos[thread] >= start and thread_pos[thread] < end:
+                    raise FoundDeadlockException()
+                continue
+            for i in range(start, end):
+                action = actual_schedules[thread][i]
+                if not isinstance(action, Lock):
+                    continue
+                held = held_locks_at[thread][i]
+                if len(locks_held.intersection(held)) == 0:
+                    # print '  '*(indent + 1) + "Position", i
+                    locks_held.update(held)
+                    thread_pos[thread] = i
+                    helper(action.id, indent + 2)
+                    thread_pos[thread] = -1
+                    for h in held:
+                        locks_held.remove(h)
+
+    try:
+        for lock_id in range(total_locks):
+            helper(lock_id)
+    except FoundDeadlockException as e:
+        return False
+    return True
+
+# print is_deadlock_free([
+#     [Lock(1), Lock(2), Unlock(1), Unlock(2)],
+#     [Lock(2), Lock(1), Unlock(1), Unlock(2)],
+# ])
+
+
+def get_actual_schedule(assi):
+    """Given a list of (seed, thread) assignments, return the list of
+    schedules of actions."""
+    actual = []
+    for (seed, t) in enumerate(assi):
+        schedule = schedules[t]
+        actual_schedule = []
+        for action in schedule:
+            if action == 0:
+                continue
+            lock_index = abs(action) - 1
+            actual_lock = pick_table[seed][lock_index]
+            is_lock = action > 0
+            if is_lock:
+                actual_schedule.append(Lock(actual_lock))
+            else:
+                actual_schedule.append(Unlock(actual_lock))
+        actual.append(actual_schedule)
+    return actual
+
+
+mycount = 0
+
+
+def find_assignment(arr, i):
+    """Main brute-force search with pruning. This gives the final answer."""
+    global mycount
+    if i == 15:
+        print arr
+        return
+    for j in range(15):
+        if j in arr:
+            continue
+        arr[i] = j
+        actual = get_actual_schedule(arr[:i+1])
+        mycount += 1
+        if mycount % 1000 == 0:
+            print mycount, 'Trying', arr[:i+1]
+        if is_deadlock_free(actual):
+            find_assignment(arr, i+1)
+        arr[i] = -1
+
+
+find_assignment([-1]*15, 0)
+```
