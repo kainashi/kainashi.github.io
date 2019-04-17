@@ -282,7 +282,7 @@ I never managed to prove this part, but I opted for speed and gave it a try anyw
 * First, precompute $L(i, a)$ for each thread $i$ and action index $a$.
 * Precompute $S(l)$ for each mutex $l$, defined as the set of tuples $(i, x, y)$ such that thread $i$ holds mutex $l$ from action index $x$ (inclusive) to action index $y$ (exclusive).
 * Initialize the search state: a sequence $A$ of pairs $(i, a)$ representing thread $i$ waiting on action $a$, initialized to empty, and a set of all held locks $H$, initialized to empty.
-* $\textrm{function } \textrm{Search}(l, A, H):$
+* $\textrm{function } \textrm{FindDeadlock}(l, A, H):$
   * For each $(i, x, y) \in S(l)$:
     * If there exists $(i, a)$ in $A$:
       * If $x\le a < y$, we have found a deadlock; return $A$.
@@ -290,7 +290,7 @@ I never managed to prove this part, but I opted for speed and gave it a try anyw
     * For each $x \le a < y$ such that action $a$ of thread $i$ is a locking operation:
       * Append $(i, a)$ to $A$
       * Add the set of held locks $L(i, a)$ to $H$
-      * $\textrm{Search}(l_{i, a}, A, H)$
+      * $\textrm{FindDeadlock}(l_{i, a}, A, H)$
       * Remove $L(i, a)$ to $H$
       * Remove $(i, a)$ from $A$
 
