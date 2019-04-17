@@ -6,4 +6,10 @@ markdown: kramdown
 
 include:
   - index.md
-  - plaid-2019-pppiii2.md
+  - pppiii2.md
+
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true
