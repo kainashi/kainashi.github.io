@@ -3,7 +3,7 @@ title: Team Kainashi
 include:
   - index.md
   - pppiii2.md
-
+markdown: kramdown
 plugins:
   - jekyll-relative-links
 relative_links:
