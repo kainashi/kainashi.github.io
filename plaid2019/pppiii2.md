@@ -211,7 +211,7 @@ It still seemed to me at this point that it was important that the threads took 
 
 So now the problem I'm trying to tackle is, rather than avoiding ambiguity, whenever two threads wait on the same lock, we will consider both outcomes and make sure both of them will not deadlock.
 
-So I wrote a simulator to check this. By the way, at this time the "official" simulator coded in the binary ("Checking the dinner...", which executes whenever the first argument is not 1) was not functional yet, so I never bothered to understand what it tried to do. If I did, I think I would've abandoned the turn-based idea more quickly.
+So I wrote a simulator to check this. By the way, at this time the "official" simulator coded in the binary ("Checking the dinner...", which executes whenever the first argument is not 1) was not functional yet, so I never bothered to understand what it tried to do. If I did, *maybe* I would have abandoned the turn-based idea more quickly.
 
 The simulator simulates turns, each turn is decomposed into two parts, *during* and *after*:
 
@@ -222,7 +222,7 @@ A search state is successful if all threads are complete. It is a deadlock if al
 
 We carry through this search to explore all possible branches; if we find no deadlock in any state, then we're good.
 
-This simulator works pretty quickly and I was able to find deadlocks easily with the solutions I got before with z3. But the problem is, how do we find an answer that passes the simulator? z3 is sure to not work here, because we need to explore an exponential number of branches, not just 1.
+This simulator works pretty quickly and I was able to find deadlocks easily with the solutions I got before with z3. But the problem is, how do we find an answer that *passes* the simulator? z3 is sure to not work here, because we need to explore an exponential number of branches, not just 1.
 
 After playing around a few ideas, I eventually decided to run a genetic algorithm. I start with an initial input (like 2 3 4 5 6 7 1 8 9 10 11 12 13 14), and then mutate it:
 
@@ -231,7 +231,7 @@ After playing around a few ideas, I eventually decided to run a genetic algorith
 * Rotate quadruplets: randomly take four positions and rotate them by 1 step.
 * Randomize: pick a new permutation completely randomly.
 
-The fitness metric for the genetic algorithm is how many branches are successful as opposed to arriving at a deadlock. A problem here is that for some inputs, there are hundreds of thousands of branches so it takes a long time to search through all of them; so instead, I sample them with a poor-man's version of Monte Carlo Tree Search to estimate the success ratio.
+The fitness metric for the genetic algorithm is how many branches are successful as opposed to arriving at a deadlock. A problem here is that for some inputs, there are hundreds of thousands of branches so it takes a long time to search through all of them; so instead, I sample them with a poor-man's version of Monte Carlo Tree Search (BFS to 25 nodes, then DFS 25 leaves each) to estimate the success ratio.
 
 After many iterations on the code I eventually found a good solution that got 100% success in the sampled branches, so I turned off the sampling and ran another round of mutations to really find an input that would avoid deadlock in all branches. Here's one input: `14 7 9 12 8 11 10 2 4 6 15 1 3 5 13`. This input has 134334 possible successful outcomes, and never deadlocks.
 
@@ -267,12 +267,12 @@ These threads grab A and B in the opposite order, but they *don't* have a deadlo
 In fact, the following is a necessary condition for a deadlock to be possible:
 
 * Let $L(i, a)$ be the set of mutexes that thread $i$ would already be holding when it is about to execute action #$a$.
-* Let $l_{i, a}$ be the mutex that thread $i$ would be trying to acquire as part of action #$a$ (which must be a locking action).
+* Let $l_{i, a}$ be the mutex that thread $i$ would be trying to acquire as part of action #$a$ (which must be a locking action for this notation to be valid).
 * Necessary condition for deadlock existence: There exists a sequence of threads $i_1, i_2, ..., i_n$ and for each thread $i_j$ an index $a_j$ into its action sequence, such that
   *  The held locks, $L(i_j, a_j)$, are pairwise disjoint; and
-  *  For each thread $i_j$, it is waiting on a lock held by $i_{j+1}$ (or $i_1$ if $j=n$), i.e. $l_{i_j, a_j} \in L(i_{j+1}, a_{j+1})$.
+  *  For each thread $i_j$, it is waiting on a lock held by $i_{j+1}$ (or $i_1$ if $j=n$), i.e. $l_{i_j, a_j} \in L(i_{j+1}, a_{j+1})$. In other words, these threads form a waiting cycle.
 
-We call the pair of such sequences $(\{i_j\}, \{a_j\})$ a **deadlock point**.
+We call the pair of such sequences $(\lbrace i_j\rbrace, \lbrace a_j\rbrace)$ a **deadlock point**.
 
 Proving this necessary condition is trivial: if a deadlock exists, at the time of a deadlock, we can start from one thread and follow its wait chain to arrive at a cycle of threads, which form a deadlock point.
 
