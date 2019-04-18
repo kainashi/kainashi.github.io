@@ -1,3 +1,7 @@
+---
+comments: true
+---
+
 # PlaidCTF - Plaid Planning Party III 2 (500pts, 8 solves)
 *Writeup Author: hpmv*.
 
