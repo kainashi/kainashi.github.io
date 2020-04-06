@@ -1,14 +1,10 @@
 # Team Kainashi
 
-## Introduction
-
-We're still working on our site. Stay tuned!
-
-## Team Philosophy
-
-We're working on putting this up, but we are recruiting motivated members!
-
 ## Writeups
+
+### Midnight Sun CTF 2020
+
+* [StarCraft](midnightsun2020/starcraft.md)
 
 ### PlaidCTF 2019
 
