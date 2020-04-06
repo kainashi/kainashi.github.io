@@ -1,3 +1,7 @@
+---
+comments: true
+---
+
 # Midnight Sun CTF - StarCraft (363 pts, 7 solves)
 *Writeup Author: hpmv*.
 
